@@ -23,18 +23,34 @@ export async function GET(
   try {
     const result = await client.query(
       `
-    SELECT
-        id,
-        status,
-        firstname,
-        lastname,
-        email,
-        companyname,
-        motivation,
-        created_at
-    FROM dev_requests
-    WHERE id = $1
-    `,
+      SELECT
+        dr.id,
+        dr.status,
+        dr.firstname,
+        dr.lastname,
+        dr.email,
+        dr.companyname,
+        dr.website,
+        dr.motivation,
+        dr.created_at,
+
+        di.id AS invitation_id,
+        di.token AS invitation_token,
+        di.used AS invitation_used,
+        di.used_at AS invitation_used_at,
+        di.expires_at AS invitation_expires_at,
+        di.created_at AS invitation_created_at
+
+      FROM dev_requests dr
+      LEFT JOIN LATERAL (
+        SELECT id, token, used, used_at, expires_at, created_at
+        FROM dev_invitations
+        WHERE request_id = dr.id
+        ORDER BY created_at DESC
+        LIMIT 1
+      ) di ON true
+      WHERE dr.id = $1
+      `,
       [id],
     );
 
@@ -45,7 +61,38 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(result.rows[0], { status: 200 });
+    const row = result.rows[0];
+    const appUrl =
+      process.env.APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      "http://localhost:3000";
+
+    return NextResponse.json(
+      {
+        id: row.id,
+        status: row.status,
+        firstname: row.firstname,
+        lastname: row.lastname,
+        email: row.email,
+        companyname: row.companyname,
+        website: row.website,
+        motivation: row.motivation,
+        created_at: row.created_at,
+
+        invitation: row.invitation_id
+          ? {
+              id: row.invitation_id,
+              token: row.invitation_token,
+              used: row.invitation_used,
+              used_at: row.invitation_used_at,
+              expires_at: row.invitation_expires_at,
+              created_at: row.invitation_created_at,
+              registrationUrl: `${appUrl}/complete-dev-registration?token=${row.invitation_token}`,
+            }
+          : null,
+      },
+      { status: 200 },
+    );
   } catch (error: any) {
     console.error("verify-request failed:", error);
 
