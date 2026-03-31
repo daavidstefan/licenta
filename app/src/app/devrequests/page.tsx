@@ -21,7 +21,7 @@ export default async function DevRequestsPage({
   const userRole = (session?.user as any)?.role;
 
   if (userRole !== "admin") {
-    return <div className="p-6">Nu ai acces la această pagină.</div>;
+    return 404; //////////////////////////////////// <---------------------- aici trebuie sa arunc un 404 - page not found
   }
 
   const sp = await searchParams;

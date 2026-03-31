@@ -25,6 +25,7 @@ type RequestData = {
   companyname: string;
   website: string;
   motivation: string;
+  review_reason: string | null;
   created_at: string;
   invitation: InvitationData | null;
 };
@@ -43,11 +44,11 @@ function getStatusBadgeClasses(status: RequestData["status"]) {
 function getStatusLabel(status: RequestData["status"]) {
   switch (status) {
     case "approved":
-      return "Approved";
+      return "Aprobată";
     case "rejected":
-      return "Rejected";
+      return "Respinsă";
     default:
-      return "Pending";
+      return "În așteptare";
   }
 }
 
@@ -209,9 +210,9 @@ export default function VerifyRequestPage() {
 
           <div>
             <p className="text-sm text-muted-foreground">Motivația cererii</p>
-            <p className="mt-1 whitespace-pre-wrap leading-6 text-sm">
+            <div className="mt-2 rounded-md border p-4 whitespace-pre-wrap break-words">
               {data.motivation}
-            </p>
+            </div>
           </div>
         </div>
 
@@ -226,9 +227,16 @@ export default function VerifyRequestPage() {
 
           {data.status === "rejected" && (
             <div className="space-y-3">
-              <p className="text-sm text-red-600">
-                Cererea ta a fost respinsă.
-              </p>
+              {data.review_reason && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                  <p className="text-sm font-medium text-red-700">
+                    Motivul respingerii
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap break-words text-sm text-red-700">
+                    {data.review_reason}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -285,7 +293,7 @@ export default function VerifyRequestPage() {
 
         <div className="mt-3 flex justify-center">
           <Button asChild variant="outline" className="cursor-pointer">
-            <Link href="/devregister">Înapoi</Link>
+            <Link href="/">Înapoi</Link>
           </Button>
         </div>
       </div>

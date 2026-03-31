@@ -36,7 +36,7 @@ export async function PATCH(
 
   const { id } = await params;
 
-  let body: { status?: AllowedStatus };
+  let body: { status?: AllowedStatus; reviewReason?: string };
 
   try {
     body = await req.json();
@@ -45,6 +45,8 @@ export async function PATCH(
   }
 
   const nextStatus = body.status;
+  const reviewReason = body.reviewReason?.trim() || null;
+  const reviewedByAdminId = (session.user as any)?.id ?? null;
 
   if (!nextStatus || !["approved", "rejected"].includes(nextStatus)) {
     return NextResponse.json(
@@ -96,23 +98,39 @@ export async function PATCH(
       );
     }
 
-    const { rows: updatedRows } = await client.query<DevRequestRow>(
+    if (nextStatus === "rejected" && !reviewReason) {
+      return NextResponse.json(
+        { error: "Motivul respingerii este obligatoriu." },
+        { status: 400 },
+      );
+    }
+
+    const finalReviewReason = nextStatus === "rejected" ? reviewReason : null;
+
+    const { rows: updatedRows } = await client.query(
       `
-        UPDATE dev_requests
-        SET status = $1
-        WHERE id = $2
-        RETURNING
-          id,
-          firstname,
-          lastname,
-          email,
-          companyname,
-          website,
-          motivation,
-          status,
-          created_at
-      `,
-      [nextStatus, id],
+      UPDATE dev_requests
+      SET
+        status = $1,
+        review_reason = $2,
+        reviewed_at = NOW(),
+        reviewed_by_admin_id = $3
+      WHERE id = $4
+      RETURNING
+      id,
+      firstname,
+      lastname,
+      email,
+      companyname,
+      website,
+      motivation,
+      status,
+      created_at,
+      review_reason,
+      reviewed_at,
+      reviewed_by_admin_id
+    `,
+      [nextStatus, finalReviewReason, reviewedByAdminId, id],
     );
 
     const updatedRequest = updatedRows[0];

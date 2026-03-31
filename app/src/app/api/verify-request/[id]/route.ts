@@ -32,6 +32,7 @@ export async function GET(
         dr.companyname,
         dr.website,
         dr.motivation,
+        dr.review_reason,
         dr.created_at,
 
         di.id AS invitation_id,
@@ -77,6 +78,7 @@ export async function GET(
         companyname: row.companyname,
         website: row.website,
         motivation: row.motivation,
+        review_reason: row.review_reason,
         created_at: row.created_at,
 
         invitation: row.invitation_id

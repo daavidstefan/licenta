@@ -106,6 +106,7 @@ export default async function DevRequestDetailsPage({
   );
 
   const request = rows[0];
+  const isPending = request.status?.trim().toLowerCase() === "pending";
 
   if (!request) {
     return (
@@ -204,13 +205,15 @@ export default async function DevRequestDetailsPage({
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3">
-          <DevRequestActions id={request.id} currentStatus={request.status} />
+        {isPending && (
+          <CardFooter className="flex flex-col gap-3">
+            <DevRequestActions id={request.id} currentStatus={request.status} />
 
-          <div className="text-sm text-muted-foreground text-center">
+            {/* <div className="text-sm text-muted-foreground text-center">
             Acțiuni disponibile pentru cererea selectată.
-          </div>
-        </CardFooter>
+          </div> */}
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
