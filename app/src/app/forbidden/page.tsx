@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, LockKeyhole, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ShieldAlert, House } from "lucide-react";
 
 import {
   Card,
@@ -17,11 +17,6 @@ export default function ForbiddenPage() {
   const router = useRouter();
 
   const goBack = () => {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-
     router.push("/listofprojects");
   };
 
@@ -47,8 +42,8 @@ export default function ForbiddenPage() {
 
         <CardFooter className="justify-center">
           <Button onClick={goBack} className="cursor-pointer">
-            <ArrowLeft className="size-4" />
-            Inapoi
+            <House className="size-4" />
+            Acasă
           </Button>
         </CardFooter>
       </Card>

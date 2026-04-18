@@ -46,22 +46,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { canCreateProjects } from "@/lib/roles";
 
 const NAVBAR_H = 56;
 
+const HIDDEN_NAVBAR_PATHS = new Set([
+  "/forbidden",
+  "/login",
+  "/devregister",
+  "/verifyrequest",
+  "/complete-dev-registration",
+]);
+
 export default function NavigationBar() {
   const pathname = usePathname();
-  if (
-    pathname === "/login" ||
-    pathname === "/devregister" ||
-    pathname === "/verifyrequest" ||
-    pathname === "/complete-dev-registration"
-  )
-    return null;
 
+  if (HIDDEN_NAVBAR_PATHS.has(pathname)) {
+    return null;
+  }
+
+  return <NavigationBarContent />;
+}
+
+function NavigationBarContent() {
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const userRole = session?.user?.role;
+  const canCreateProject = canCreateProjects(userRole);
   const [open, setOpen] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
@@ -213,7 +224,7 @@ export default function NavigationBar() {
             </SheetHeader>
 
             <nav className="px-2 pb-4 space-y-1">
-              {userRole === "admin" && "developer" && (
+              {canCreateProject && (
                 <Link
                   className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
                   href="/myprojects"
@@ -312,11 +323,11 @@ export default function NavigationBar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-            {userRole === "admin" && "developer" && (
+            {canCreateProject && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link href="/addnewproject" className="px-3 py-2">
-                    Adaugă un proiect nou
+                      Adaugă un proiect nou
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
