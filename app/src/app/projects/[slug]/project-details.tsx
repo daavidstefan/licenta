@@ -247,11 +247,13 @@ export default function ProjectDetails({
     try {
       setGenerating(true);
 
+      const selectedFeatureKeys = selectedFeatures.map((f) => f.key);
+
       const res = await fetch(`/api/projects/${project.slug}/generate-key`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          featureIds: selected,
+          featureKeys: selectedFeatureKeys,
         }),
       });
 

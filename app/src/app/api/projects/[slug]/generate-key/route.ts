@@ -133,10 +133,14 @@ export async function POST(
 
   const availableKeys = new Set(availableFeatures.map((f) => f.key));
 
-  const selectedFeatureKeys =
-    requestedFeatureKeys.length > 0
-      ? requestedFeatureKeys
-      : availableFeatures.map((f) => f.key);
+  if (requestedFeatureKeys.length === 0) {
+    return NextResponse.json(
+      { error: "Selecteaza cel putin un feature." },
+      { status: 400 },
+    );
+  }
+
+  const selectedFeatureKeys = requestedFeatureKeys;
 
   const invalidKeys = selectedFeatureKeys.filter(
     (key) => !availableKeys.has(key),
