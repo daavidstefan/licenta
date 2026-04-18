@@ -213,14 +213,16 @@ export default function NavigationBar() {
             </SheetHeader>
 
             <nav className="px-2 pb-4 space-y-1">
-              <Link
-                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                href="/myprojects"
-                onClick={() => setOpen(false)}
-              >
-                <Folder className="size-5" />
-                Proiectele mele
-              </Link>
+              {userRole === "admin" && "developer" && (
+                <Link
+                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  href="/myprojects"
+                  onClick={() => setOpen(false)}
+                >
+                  <Folder className="size-5" />
+                  Proiectele mele
+                </Link>
+              )}
               <Link
                 className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
                 href="/mylicenses"
@@ -284,7 +286,6 @@ export default function NavigationBar() {
                 className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
                 href="/contactdetails"
                 onClick={() => {
-                  //toast.error("Zonă în construcție...");
                   setOpen(false);
                 }}
               >
@@ -311,15 +312,15 @@ export default function NavigationBar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/addnewproject" className="px-3 py-2">
-                  Adaugă un proiect nou
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
+            {userRole === "admin" && "developer" && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/addnewproject" className="px-3 py-2">
+                    Adaugă un proiect nou
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
             {userRole === "admin" && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
