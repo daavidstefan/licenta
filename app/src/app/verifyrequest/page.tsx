@@ -111,7 +111,7 @@ export default function VerifyRequestPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-xl rounded-2xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-xl rounded-lg border border-border/70 bg-card/95 p-8 text-center shadow-[0_18px_50px_-35px_rgb(20_30_35_/_0.45)] backdrop-blur-sm">
           <p className="text-sm text-muted-foreground">
             Se încarcă statusul cererii...
           </p>
@@ -123,7 +123,7 @@ export default function VerifyRequestPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-xl rounded-2xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-xl rounded-lg border border-border/70 bg-card/95 p-8 text-center shadow-[0_18px_50px_-35px_rgb(20_30_35_/_0.45)] backdrop-blur-sm">
           <h1 className="text-2xl font-semibold mb-4">Verificare cerere</h1>
           <p className="text-sm text-red-600">{error}</p>
 
@@ -140,7 +140,7 @@ export default function VerifyRequestPage() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-xl rounded-2xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-xl rounded-lg border border-border/70 bg-card/95 p-8 text-center shadow-[0_18px_50px_-35px_rgb(20_30_35_/_0.45)] backdrop-blur-sm">
           <h1 className="text-2xl font-semibold mb-4">Verificare cerere</h1>
           <p className="text-sm text-muted-foreground">
             Cererea nu a fost găsită.
@@ -158,7 +158,7 @@ export default function VerifyRequestPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl rounded-2xl border bg-white p-8 shadow-sm">
+      <div className="w-full max-w-2xl rounded-lg border border-border/70 bg-card/95 p-8 shadow-[0_18px_50px_-35px_rgb(20_30_35_/_0.45)] backdrop-blur-sm">
         <div className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold">Detalii cerere</h1>

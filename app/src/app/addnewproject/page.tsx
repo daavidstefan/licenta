@@ -133,8 +133,8 @@ export default function AddNewProject() {
   };
 
   return (
-    <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] p-6 flex flex-col">
+    <div className="app-page">
+      <Card className="app-panel flex flex-col">
         {" "}
         <CardHeader>
           <div className="h-full flex flex-col items-center justify-center text-center gap-2">
@@ -159,7 +159,7 @@ export default function AddNewProject() {
             />
             <div
               className={`text-sm mt-1 ${
-                name.trim().length < 10 ? "text-red-500" : "text-green-600"
+                name.trim().length < 10 ? "text-destructive" : "text-emerald-600"
               }`}
             >
               {name.trim().length}/10 caractere
@@ -180,7 +180,7 @@ export default function AddNewProject() {
             />
             <div
               className={`text-sm mt-1 ${
-                details.length < 50 ? "text-red-500" : "text-green-600"
+                details.length < 50 ? "text-destructive" : "text-emerald-600"
               }`}
             >
               {details.length}/50 caractere
@@ -210,7 +210,7 @@ export default function AddNewProject() {
             </Button>
           </div>
           <div className="p-2">
-            <Card>
+            <div className="rounded-lg border border-border/70 bg-muted/40 p-4">
               <CardTitle className="text-center">Lista servicii</CardTitle>
               <div className="p-2">
                 {features.length === 0 ? (
@@ -248,7 +248,7 @@ export default function AddNewProject() {
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
           </div>
         </CardContent>
         <Separator className="!h-[1.5px]" />

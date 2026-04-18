@@ -89,8 +89,8 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
   };
 
   return (
-    <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6 flex flex-col">
+    <div className="app-page">
+      <Card className="app-panel overflow-y-auto flex flex-col">
         <CardHeader>
           <div className="h-full flex flex-col items-center justify-center text-center gap-2">
             <CardTitle className="text-lg">Proiectele mele</CardTitle>

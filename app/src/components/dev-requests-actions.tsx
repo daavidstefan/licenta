@@ -157,6 +157,7 @@ export default function DevRequestActions({
     <div className="flex items-center justify-center gap-3">
       <Button
         onClick={approveRequest}
+        variant="success"
         disabled={!isPending || loading !== null}
       >
         {loading === "approved" ? "Se aprobă..." : "Aprobă"}

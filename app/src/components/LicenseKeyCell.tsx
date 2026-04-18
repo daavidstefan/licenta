@@ -16,10 +16,10 @@ export function LicenseKeyCell({ value }: { value: string }) {
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-mono tracking-tight">{maskKey(value)}</span>
+      <span className="font-mono tracking-normal">{maskKey(value)}</span>
       <button
         type="button"
-        className="inline-flex p-2 rounded-md hover:bg-accent cursor-pointer"
+        className="inline-flex rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
         aria-label="Copiază cheia"
         onClick={handleCopy}
       >

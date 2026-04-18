@@ -134,9 +134,9 @@ export default function DevRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="app-page flex min-h-screen items-center justify-center">
       {" "}
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] p-6 flex flex-col">
+      <Card className="app-panel flex flex-col">
         {" "}
         <CardHeader>
           <div className="h-full flex flex-col items-center justify-center text-center gap-2">
@@ -146,7 +146,7 @@ export default function DevRegisterPage() {
           </div>
         </CardHeader>
         <Separator className="!h-[1.5px]" />{" "}
-        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none ...">
+        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none">
           <div className="p-4 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">Prenume *</Label>
@@ -211,13 +211,13 @@ export default function DevRegisterPage() {
                     e.currentTarget.scrollHeight + "px";
                 }}
                 placeholder="Descrie pe scurt ce proiect dorești să construiești cu API-ul nostru..."
-                className="w-full ... min-h-[100px]"
+                className="w-full min-h-[100px]"
               />
               <div
                 className={`text-sm mt-1 ${
                   motivation.trim().length < 50
-                    ? "text-red-500"
-                    : "text-green-600"
+                    ? "text-destructive"
+                    : "text-emerald-600"
                 }`}
               >
                 {motivation.trim().length}/50 caractere minime
@@ -227,7 +227,7 @@ export default function DevRegisterPage() {
             <div className="flex items-center space-x-2 pt-2">
               <Label
                 htmlFor="mandatory"
-                className="text-sm ... peer-disabled:opacity-100"
+                className="text-sm text-muted-foreground peer-disabled:opacity-100"
               >
                 * indică un câmp obligatoriu.
               </Label>

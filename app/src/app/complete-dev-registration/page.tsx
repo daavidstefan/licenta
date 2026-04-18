@@ -157,7 +157,7 @@ export default function CompleteDevRegistrationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="app-page flex min-h-screen items-center justify-center">
         <Card className="w-full max-w-2xl p-6">
           <CardHeader>
             <CardTitle className="text-center">
@@ -171,7 +171,7 @@ export default function CompleteDevRegistrationPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="app-page flex min-h-screen items-center justify-center">
         <Card className="w-full max-w-2xl p-6">
           <CardHeader>
             <CardTitle className="text-center">Invitație invalidă</CardTitle>
@@ -186,7 +186,7 @@ export default function CompleteDevRegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="app-page flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-2xl p-6">
         <CardHeader>
           <div className="text-center space-y-2">
