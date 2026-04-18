@@ -7,3 +7,7 @@ export function canCreateProjects(role: UserRole) {
 export function canManageDevRequests(role: UserRole) {
   return role === "admin";
 }
+
+export function canManageProjectRequests(role: UserRole) {
+  return role === "admin";
+}

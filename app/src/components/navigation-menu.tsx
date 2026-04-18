@@ -46,7 +46,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { canCreateProjects } from "@/lib/roles";
+import {
+  canCreateProjects,
+  canManageProjectRequests,
+} from "@/lib/roles";
 
 const NAVBAR_H = 56;
 
@@ -72,47 +75,79 @@ function NavigationBarContent() {
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const userRole = session?.user?.role;
+  const userId = session?.user?.id ?? null;
   const canCreateProject = canCreateProjects(userRole);
+  const canManageProjectRequest = canManageProjectRequests(userRole);
   const [open, setOpen] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [pendingProjectRequestsCount, setPendingProjectRequestsCount] =
+    useState(0);
 
   // salveaza ora de login
   useEffect(() => {
-    // if (status === "authenticated" && !localStorage.getItem("loginAt")) {
-    //   localStorage.setItem("loginAt", Date.now().toString());
-    // }
-    if (!localStorage.getItem(`loginAt`)) {
-      localStorage.setItem("loginAt", Date.now().toString());
+    if (status === "loading") {
+      return;
     }
-    // localStorage.setItem("loginAt", Date.now().toString());
-  }, []);
+
+    if (status !== "authenticated" || !userId) {
+      localStorage.removeItem("loginAt");
+      localStorage.removeItem("loginUserId");
+      window.dispatchEvent(new Event("loginAtChanged"));
+      return;
+    }
+
+    const savedUserId = localStorage.getItem("loginUserId");
+    const savedLoginAt = Number(localStorage.getItem("loginAt"));
+    const hasValidLoginAt =
+      Number.isFinite(savedLoginAt) &&
+      savedLoginAt > 0 &&
+      savedLoginAt <= Date.now();
+
+    if (savedUserId !== userId || !hasValidLoginAt) {
+      localStorage.setItem("loginUserId", userId);
+      localStorage.setItem("loginAt", Date.now().toString());
+      window.dispatchEvent(new Event("loginAtChanged"));
+    }
+  }, [status, userId]);
 
   useEffect(() => {
-    if (status !== "authenticated" || userRole !== "admin") {
+    if (status !== "authenticated" || !canManageProjectRequest) {
       setPendingRequestsCount(0);
+      setPendingProjectRequestsCount(0);
       return;
     }
 
     const loadPendingRequestsCount = async () => {
       try {
-        const res = await fetch("/api/dev-requests/pending-count", {
-          cache: "no-store",
-        });
+        const [devRes, projectRes] = await Promise.all([
+          fetch("/api/dev-requests/pending-count", {
+            cache: "no-store",
+          }),
+          fetch("/api/project-requests/pending-count", {
+            cache: "no-store",
+          }),
+        ]);
 
-        if (!res.ok) {
+        if (!devRes.ok || !projectRes.ok) {
           throw new Error("Failed to fetch pending requests count");
         }
 
-        const data = await res.json();
-        setPendingRequestsCount(Number(data.count ?? 0));
+        const [devData, projectData] = await Promise.all([
+          devRes.json(),
+          projectRes.json(),
+        ]);
+
+        setPendingRequestsCount(Number(devData.count ?? 0));
+        setPendingProjectRequestsCount(Number(projectData.count ?? 0));
       } catch (error) {
         console.error(error);
         setPendingRequestsCount(0);
+        setPendingProjectRequestsCount(0);
       }
     };
 
     loadPendingRequestsCount();
-  }, [status, userRole]);
+  }, [canManageProjectRequest, status]);
   // console.log(
   //   "@@@@@@@@@@@@@@@@@@@@@@@",
   //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
@@ -156,6 +191,8 @@ function NavigationBarContent() {
 
   const handleLogout = async () => {
     const idToken = (session as any)?.id_token;
+    localStorage.removeItem("loginAt");
+    localStorage.removeItem("loginUserId");
 
     if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
       const logoutUrl =
@@ -332,7 +369,7 @@ function NavigationBarContent() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}
-            {userRole === "admin" && (
+            {canManageProjectRequest && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -345,6 +382,25 @@ function NavigationBarContent() {
                         {pendingRequestsCount > 99
                           ? "99+"
                           : pendingRequestsCount}
+                      </span>
+                    )}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+            {canManageProjectRequest && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/projectrequests"
+                    className="relative px-3 py-2 inline-flex items-center"
+                  >
+                    Cereri proiecte
+                    {pendingProjectRequestsCount > 0 && (
+                      <span className="absolute -top-0 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-semibold flex items-center justify-center leading-none">
+                        {pendingProjectRequestsCount > 99
+                          ? "99+"
+                          : pendingProjectRequestsCount}
                       </span>
                     )}
                   </Link>

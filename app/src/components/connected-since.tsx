@@ -22,8 +22,19 @@ export function ConnectedSince({ active }: ConnectedSinceProps) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    const saved = localStorage.getItem("loginAt");
-    if (saved) setLoginAt(Number(saved));
+    const syncLoginAt = () => {
+      const saved = Number(localStorage.getItem("loginAt"));
+      const valid =
+        Number.isFinite(saved) && saved > 0 && saved <= Date.now();
+
+      setLoginAt(valid ? saved : null);
+      setNow(Date.now());
+    };
+
+    syncLoginAt();
+    window.addEventListener("loginAtChanged", syncLoginAt);
+
+    return () => window.removeEventListener("loginAtChanged", syncLoginAt);
   }, []);
 
   // on/off timer doar pe client

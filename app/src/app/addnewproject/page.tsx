@@ -119,8 +119,8 @@ export default function AddNewProject() {
       if (!res.ok) {
         throw new Error(data?.error || "Eroare la salvare");
       }
-      toast.success("Proiect adăugat");
-      router.push("/listofprojects");
+      toast.success("Proiect trimis spre validare");
+      router.push("/myprojects");
       setName("");
       setDetails("");
       setFeatures([]);
@@ -260,7 +260,7 @@ export default function AddNewProject() {
             size="sm"
             className="cursor-pointer"
           >
-            {loading ? "Se salvează..." : "Adaugă proiectul"}
+            {loading ? "Se trimite..." : "Trimite proiectul spre validare"}
           </Button>
         </CardFooter>
       </Card>

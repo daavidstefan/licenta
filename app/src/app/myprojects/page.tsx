@@ -10,6 +10,7 @@ type ProjectRow = {
   name: string;
   created_at: string;
   slug: string;
+  status: string;
 };
 
 export default async function MyProjectsPage() {
@@ -18,7 +19,7 @@ export default async function MyProjectsPage() {
   if (!userSub) return <div className="p-6">Nu s-a găsit sub-id.</div>;
 
   const { rows: projects } = await pg.query<ProjectRow>(
-    `SELECT id, name, created_at, slug
+    `SELECT id, name, created_at, slug, status
      FROM projects
      WHERE author_sub_id = $1
      ORDER BY created_at DESC`,

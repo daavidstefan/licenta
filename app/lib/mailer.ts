@@ -8,6 +8,13 @@ type DeveloperApprovalEmailInput = {
   expiresAt: string | Date;
 };
 
+type ProjectReviewEmailInput = {
+  to: string;
+  developerName?: string | null;
+  projectName: string;
+  reviewReason?: string | null;
+};
+
 const globalForMailer = global as unknown as {
   appMailer?: nodemailer.Transporter;
 };
@@ -114,6 +121,68 @@ export async function sendDeveloperApprovalEmail({
         <p style="color: #666; margin-top: 24px;">
           Dacă nu ai făcut tu această cerere, poți ignora acest mesaj.
         </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendProjectApprovalEmail({
+  to,
+  developerName,
+  projectName,
+}: ProjectReviewEmailInput) {
+  const transporter = getMailer();
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER!;
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject: "Proiectul tau a fost aprobat",
+    text: [
+      `Salut${developerName ? ` ${developerName}` : ""},`,
+      ``,
+      `Proiectul "${projectName}" a fost aprobat.`,
+      `Acesta este acum vizibil in lista proiectelor disponibile.`,
+    ].join("\n"),
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
+        <h2 style="margin-bottom: 16px;">Proiect aprobat</h2>
+        <p>Salut${developerName ? ` <strong>${developerName}</strong>` : ""},</p>
+        <p>Proiectul <strong>${projectName}</strong> a fost aprobat.</p>
+        <p>Acesta este acum vizibil in lista proiectelor disponibile.</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendProjectRejectionEmail({
+  to,
+  developerName,
+  projectName,
+  reviewReason,
+}: ProjectReviewEmailInput) {
+  const transporter = getMailer();
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER!;
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject: "Proiectul tau a fost respins",
+    text: [
+      `Salut${developerName ? ` ${developerName}` : ""},`,
+      ``,
+      `Proiectul "${projectName}" a fost respins.`,
+      ``,
+      `Motiv:`,
+      reviewReason || "Nu a fost specificat un motiv.",
+    ].join("\n"),
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
+        <h2 style="margin-bottom: 16px;">Proiect respins</h2>
+        <p>Salut${developerName ? ` <strong>${developerName}</strong>` : ""},</p>
+        <p>Proiectul <strong>${projectName}</strong> a fost respins.</p>
+        <p><strong>Motiv:</strong></p>
+        <p style="white-space: pre-wrap;">${reviewReason || "Nu a fost specificat un motiv."}</p>
       </div>
     `,
   });

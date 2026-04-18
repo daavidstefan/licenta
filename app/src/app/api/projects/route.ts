@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
 import { Pool } from "pg";
+import { canCreateProjects } from "@/lib/roles";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -13,6 +14,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
 
   const userId = (session.user as any)?.id; // sub Keycloak
+  const userRole = (session.user as any)?.role;
+
+  if (!canCreateProjects(userRole)) {
+    return NextResponse.json({ error: "Nu ai permisiuni" }, { status: 403 });
+  }
+
   if (!userId) {
     return NextResponse.json({ status: 401 });
   }
@@ -79,9 +86,18 @@ export async function POST(req: NextRequest) {
 
     // creeaza proiectul
     const projRes = await client.query(
-      `INSERT INTO projects (slug, name, details, created_at, created_by, author_sub_id)
-       VALUES ($1, $2, $3, NOW(), $4, $5)
-       RETURNING id, slug`,
+      `INSERT INTO projects (
+         slug,
+         name,
+         details,
+         created_at,
+         created_by,
+         author_sub_id,
+         status,
+         submitted_at
+       )
+       VALUES ($1, $2, $3, NOW(), $4, $5, 'pending', NOW())
+       RETURNING id, slug, status`,
       [slug, name, details ?? null, createdBy, userId]
     );
     const projectId: number = projRes.rows[0].id;
@@ -99,7 +115,13 @@ export async function POST(req: NextRequest) {
 
     await client.query("COMMIT");
     return NextResponse.json(
-      { id: projectId, slug, created_by: createdBy, author_sub_id: userId },
+      {
+        id: projectId,
+        slug,
+        status: projRes.rows[0].status,
+        created_by: createdBy,
+        author_sub_id: userId,
+      },
       { status: 201 }
     );
   } catch (e) {

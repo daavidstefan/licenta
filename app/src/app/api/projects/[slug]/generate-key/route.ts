@@ -8,6 +8,7 @@ type ProjectRow = {
   id: number;
   slug: string;
   name: string;
+  status: string;
 };
 
 type FeatureRow = {
@@ -52,7 +53,7 @@ function signJwtRs256(payload: Record<string, unknown>) {
 async function loadProject(slug: string) {
   const { rows } = await pg.query<ProjectRow>(
     `
-      SELECT id, slug, name
+      SELECT id, slug, name, status
       FROM projects
       WHERE slug = $1
       LIMIT 1
@@ -94,6 +95,13 @@ export async function POST(
   const project = await loadProject(params.slug);
   if (!project) {
     return NextResponse.json({ error: "Proiect inexistent" }, { status: 404 });
+  }
+
+  if (project.status !== "approved") {
+    return NextResponse.json(
+      { error: "Proiectul nu este aprobat pentru licentiere." },
+      { status: 403 },
+    );
   }
 
   const existing = await pg.query(

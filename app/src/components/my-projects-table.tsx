@@ -22,6 +22,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import {
+  getProjectStatusLabel,
+  getProjectStatusVariant,
+} from "@/lib/project-status";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +44,7 @@ type Project = {
   name: string;
   created_at: string;
   slug: string;
+  status: string;
 };
 
 export default function MyProjectsTable({ projects }: { projects: Project[] }) {
@@ -55,6 +61,12 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
   const openDelete = (slug: string, name: string) => {
     setTarget({ slug, name });
     setConfirmOpen(true);
+  };
+
+  const openRejectedProject = (project: Project) => {
+    if (project.status === "rejected") {
+      router.push(`/verifyproject?id=${project.id}`);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -91,6 +103,7 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
               <TableRow>
                 <TableHead>Denumire</TableHead>
 
+                <TableHead className="w-[190px]">Status</TableHead>
                 <TableHead className="w-[180px]">Creat la</TableHead>
                 <TableHead className="w-[120px] text-right">Acțiuni</TableHead>
               </TableRow>
@@ -99,7 +112,7 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
               {!hasData ? (
                 <TableRow>
                   <TableCell
-                    colSpan={3}
+                    colSpan={4}
                     className="text-muted-foreground text-center py-24"
                   >
                     Nu ai proiecte încă...
@@ -107,9 +120,22 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
                 </TableRow>
               ) : (
                 projects.map((p) => (
-                  <TableRow key={p.id}>
+                  <TableRow
+                    key={p.id}
+                    className={
+                      p.status === "rejected"
+                        ? "cursor-pointer hover:bg-accent/50"
+                        : undefined
+                    }
+                    onClick={() => openRejectedProject(p)}
+                  >
                     <TableCell className="font-medium">
                       <div className="truncate max-w-[55ch]">{p.name}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getProjectStatusVariant(p.status)}>
+                        {getProjectStatusLabel(p.status)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       {new Date(p.created_at).toLocaleString("ro-RO")}
@@ -119,6 +145,7 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
                         href={`/projects/${p.slug}`}
                         aria-label="Editează"
                         className="inline-flex p-2 rounded-md hover:bg-accent align-middle"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Pencil className="size-5" />
                       </Link>
@@ -126,7 +153,10 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
                       <button
                         className="inline-flex p-2 rounded-md hover:bg-accent align-middle cursor-pointer"
                         aria-label="Șterge"
-                        onClick={() => openDelete(p.slug, p.name)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDelete(p.slug, p.name);
+                        }}
                       >
                         <Trash2 className="size-5" />
                       </button>

@@ -7,6 +7,8 @@ import { pg } from "@@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
 import ProjectDetails from "./project-details";
+import { redirect } from "next/navigation";
+import { canManageProjectRequests } from "@/lib/roles";
 
 type PageProps = { params: { slug: string } };
 
@@ -20,6 +22,7 @@ export default async function ProjectPage({
   const session = await getServerSession(authOptions);
   const meSub =
     (session?.user as any)?.id || (session?.user as any)?.sub || null;
+  const userRole = (session?.user as any)?.role;
 
   // proiect + autor
   const { rows: p } = await pg.query<{
@@ -30,8 +33,9 @@ export default async function ProjectPage({
     author_sub_id: string;
     created_at: string;
     created_by: string;
+    status: string;
   }>(
-    `SELECT id, name, details, slug, author_sub_id, created_at, created_by
+    `SELECT id, name, details, slug, author_sub_id, created_at, created_by, status
      FROM projects
      WHERE slug = $1
      LIMIT 1`,
@@ -52,6 +56,11 @@ export default async function ProjectPage({
   }
 
   const canEdit = !!meSub && meSub === project.author_sub_id;
+  const canReviewProjects = canManageProjectRequests(userRole);
+
+  if (project.status !== "approved" && !canEdit && !canReviewProjects) {
+    redirect("/forbidden");
+  }
 
   // features
   const { rows: features } = await pg.query<{
