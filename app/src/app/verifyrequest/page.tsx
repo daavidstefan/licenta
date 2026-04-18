@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 import { Button } from "@@/src/components/ui/button";
 
@@ -59,6 +61,13 @@ export default function VerifyRequestPage() {
   const [data, setData] = useState<RequestData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: session, status } = useSession();
+  const userRole = session?.user?.role;
+
+  if (userRole === "client") {
+    redirect("/forbidden");
+  }
 
   useEffect(() => {
     if (!requestId) {

@@ -35,7 +35,7 @@ export default async function Page({
 
   const params: any[] = [];
   let sql = `SELECT id, name, details, slug, created_at, created_by FROM projects`;
-  let conditions: string[] = [];
+  let conditions: string[] = [`status = 'approved'`];
 
   if (nameQ) {
     params.push(`%${nameQ}%`);
