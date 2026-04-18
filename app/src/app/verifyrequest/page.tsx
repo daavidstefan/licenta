@@ -65,7 +65,7 @@ export default function VerifyRequestPage() {
   const { data: session, status } = useSession();
   const userRole = session?.user?.role;
 
-  if (userRole === "client") {
+  if (!userRole || userRole === "client") {
     redirect("/forbidden");
   }
 

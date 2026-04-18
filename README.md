@@ -1,36 +1,247 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# licenseMe
+
+licenseMe is a Next.js application for managing software project listings and issuing signed license keys. Developers can submit projects for review, clients can browse approved projects and generate licenses, and admins can review both developer registration requests and project listing requests.
+
+The generated license keys are RS256-signed JWTs that include the license owner, project identity, selected feature keys, status, and issue timestamp.
+
+## Features
+
+- Keycloak authentication through NextAuth.
+- Role-based access for `client`, `developer`, and `admin` users.
+- Developer registration request flow with admin approval.
+- Developer account creation through approved invitation links.
+- Project listing request flow with admin approval or rejection.
+- Project rejection feedback shown to developers and sent by email.
+- Public project catalogue that only shows approved projects.
+- License generation for selected project features.
+- License overview with copied JWT keys and feature badges.
+- Account, project, and license management screens.
+
+## Tech Stack
+
+- Next.js 15 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Radix UI primitives
+- NextAuth v4
+- Keycloak
+- PostgreSQL
+- Nodemailer
+- RS256 JWT signing with Node `crypto`
+
+## Project Structure
+
+```txt
+app/
+  src/app/                  App Router pages and API routes
+  src/components/           Reusable UI and feature components
+  src/lib/                  Frontend/shared helpers
+  lib/                      Server-side integrations
+    auth.ts                 NextAuth and Keycloak session mapping
+    db.ts                   PostgreSQL pool
+    keycloak-admin.ts       Keycloak Admin API helpers
+    license-token.ts        License JWT signing helper
+    mailer.ts               Transactional email helpers
+  types/                    Type declarations
+```
+
+The GitHub README lives at the repository root, but the active Next.js app is inside `app/`.
+
+## Main Workflows
+
+### Authentication and Roles
+
+Users authenticate with Keycloak. During sign-in, the app reads realm roles from the Keycloak access token and maps them to one of:
+
+- `client`
+- `developer`
+- `admin`
+
+The mapped role is stored in the NextAuth JWT/session and synced into the local `users` table.
+
+### Developer Registration
+
+1. A user submits a developer registration request.
+2. Admins review requests from `/devrequests`.
+3. Approved requests generate an invitation link.
+4. The invitation is emailed to the user.
+5. The user completes developer account creation through `/complete-dev-registration`.
+
+### Project Listing Approval
+
+1. Developers submit projects from `/addnewproject`.
+2. New projects are saved as `pending`.
+3. Admins review project listing requests from `/projectrequests`.
+4. Approved projects become visible in `/listofprojects`.
+5. Rejected projects remain visible in `/myprojects` with a rejection status.
+6. Developers can open `/verifyproject` to see the rejection reason.
+7. Approval and rejection results are sent by email.
+
+### License Generation
+
+Clients open an approved project, choose the desired features, and generate a license. The license is stored in PostgreSQL and returned as an RS256 JWT containing the selected `feature_keys`.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- pnpm
+- PostgreSQL
+- Keycloak realm with the expected roles: `client`, `developer`, `admin`
+- SMTP credentials for transactional emails
+- RSA private key for license signing
+
+### Install Dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd app
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `app/.env.local` and provide the required values:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/licence_server"
 
-## Learn More
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="replace-with-a-secret"
+APP_URL="http://localhost:3000"
 
-To learn more about Next.js, take a look at the following resources:
+KEYCLOAK_ISSUER="http://localhost:8080/realms/your-realm"
+KEYCLOAK_CLIENT_ID="your-nextauth-client"
+KEYCLOAK_CLIENT_SECRET="your-nextauth-client-secret"
+NEXT_PUBLIC_KEYCLOAK_ISSUER="http://localhost:8080/realms/your-realm"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+KEYCLOAK_ADMIN_CLIENT_ID="your-admin-client"
+KEYCLOAK_ADMIN_CLIENT_SECRET="your-admin-client-secret"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+SMTP_HOST="smtp.example.com"
+SMTP_PORT="465"
+SMTP_SECURE="true"
+SMTP_USER="user@example.com"
+SMTP_PASS="smtp-password"
+MAIL_FROM="licenseMe <user@example.com>"
 
-## Deploy on Vercel
+LICENSE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+LICENSE_TOKEN_ISSUER="licenta-platform"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Some account deletion code also expects Keycloak admin-user style variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+KEYCLOAK_BASE="http://localhost:8080"
+KEYCLOAK_REALM="your-realm"
+KEYCLOAK_ADMIN="admin"
+KEYCLOAK_ADMIN_PASSWORD="admin-password"
+```
+
+Do not commit `.env.local`, private keys, database dumps, or PEM files.
+
+### Database
+
+The app expects PostgreSQL tables for:
+
+- `users`
+- `projects`
+- `features`
+- `licenses`
+- `license_features`
+- `dev_requests`
+- `dev_invitations`
+
+Project approval requires these columns on `projects`:
+
+```sql
+status varchar(50) DEFAULT 'pending' NOT NULL,
+review_reason text,
+reviewed_at timestamp with time zone,
+reviewed_by_admin_id text,
+submitted_at timestamp with time zone DEFAULT now()
+```
+
+Existing projects should normally be backfilled as `approved` before enabling the approval flow.
+
+## Development
+
+Run the development server:
+
+```bash
+cd app
+pnpm dev
+```
+
+Open:
+
+```txt
+http://localhost:3000
+```
+
+Run a production build:
+
+```bash
+cd app
+pnpm build
+```
+
+Run TypeScript checks:
+
+```bash
+cd app
+pnpm exec tsc --noEmit -p tsconfig.json
+```
+
+## Important Routes
+
+### Public and Auth
+
+- `/login`
+- `/devregister`
+- `/verifyrequest`
+- `/complete-dev-registration`
+- `/forbidden`
+
+### Client and Developer
+
+- `/listofprojects`
+- `/projects/[slug]`
+- `/mylicenses`
+- `/myprojects`
+- `/verifyproject`
+- `/addnewproject`
+
+### Admin
+
+- `/devrequests`
+- `/devrequests/[id]`
+- `/projectrequests`
+- `/projectrequests/[id]`
+
+## License JWT Payload
+
+A generated license token contains a payload similar to:
+
+```json
+{
+  "iss": "licenta-platform",
+  "sub": "license:123",
+  "owner_id": "keycloak-user-id",
+  "project_id": 42,
+  "feature_keys": ["export-csv", "advanced-reporting"],
+  "status": "active",
+  "iat": 1710000000
+}
+```
+
+Only selected feature keys should be included in the license payload.
+
+## Notes
+
+- Only approved projects are shown in the public project catalogue.
+- Project and developer approval flows are admin-only.
+- The navbar includes pending request badges for admin users.
+- The app uses local storage only for UI session-duration display, not for authentication.
+- SMTP failures are reported as warnings after the database update succeeds.
