@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
 import { pg } from "@@/lib/db";
 import DevRequestsTable from "@/components/dev-requests-table";
+import { redirect } from "next/navigation";
+import { canManageDevRequests } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,8 +22,8 @@ export default async function DevRequestsPage({
   const session = await getServerSession(authOptions);
   const userRole = (session?.user as any)?.role;
 
-  if (userRole !== "admin") {
-    return 404; //////////////////////////////////// <---------------------- aici trebuie sa arunc un 404 - page not found
+  if (!canManageDevRequests(userRole)) {
+    redirect("/forbidden");
   }
 
   const sp = await searchParams;

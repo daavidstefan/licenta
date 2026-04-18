@@ -48,6 +48,9 @@ import {
 } from "./ui/table";
 import { Separator } from "@radix-ui/react-separator";
 
+import { useSession } from "next-auth/react";
+import { canCreateProjects } from "@/lib/roles";
+
 type Project = {
   id: number;
   name: string;
@@ -105,6 +108,10 @@ const IconWithTip = ({
 );
 
 export default function ProjectsTable({ projects }: { projects: Project[] }) {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+  const canCreateProject = canCreateProjects(userRole);
+
   const sp = useSearchParams();
   const update = useUpdateParams();
 
@@ -169,14 +176,16 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col shrink-0">
               <CardTitle className="text-lg">
-                Lista proiectelor disponibile:
+                Lista proiectelor disponibile
               </CardTitle>
-              <Link
-                href="/addnewproject"
-                className="underline text-black text-sm"
-              >
-                Adaugă un proiect nou
-              </Link>
+              {canCreateProject && (
+                <Link
+                  href="/addnewproject"
+                  className="underline text-black text-sm"
+                >
+                  Adaugă un proiect nou
+                </Link>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

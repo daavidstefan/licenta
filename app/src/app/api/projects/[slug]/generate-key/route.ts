@@ -11,6 +11,7 @@ type ProjectRow = {
 };
 
 type FeatureRow = {
+  id: number;
   key: string;
   label: string;
 };
@@ -65,7 +66,7 @@ async function loadProject(slug: string) {
 async function loadProjectFeatures(projectId: number) {
   const { rows } = await pg.query<FeatureRow>(
     `
-      SELECT feature_key AS key, label
+      SELECT id, feature_key AS key, label
       FROM features
       WHERE project_id = $1
       ORDER BY id ASC
@@ -118,7 +119,7 @@ export async function POST(
   const body = await req.json().catch(() => ({}) as any);
 
   const requestedFeatureKeys: string[] = Array.isArray(body?.featureKeys)
-    ? body.featureKeys
+    ? [...new Set(body.featureKeys)]
         .map((x: unknown) => String(x).trim())
         .filter((x: string) => x.length > 0)
     : [];
@@ -131,7 +132,9 @@ export async function POST(
     );
   }
 
-  const availableKeys = new Set(availableFeatures.map((f) => f.key));
+  const availableFeatureByKey = new Map(
+    availableFeatures.map((feature) => [feature.key, feature]),
+  );
 
   if (requestedFeatureKeys.length === 0) {
     return NextResponse.json(
@@ -143,7 +146,7 @@ export async function POST(
   const selectedFeatureKeys = requestedFeatureKeys;
 
   const invalidKeys = selectedFeatureKeys.filter(
-    (key) => !availableKeys.has(key),
+    (key) => !availableFeatureByKey.has(key),
   );
   if (invalidKeys.length > 0) {
     return NextResponse.json(
@@ -154,6 +157,11 @@ export async function POST(
       { status: 400 },
     );
   }
+
+  const selectedFeatures = selectedFeatureKeys
+    .map((key) => availableFeatureByKey.get(key))
+    .filter((feature): feature is FeatureRow => !!feature);
+  const selectedFeatureIds = selectedFeatures.map((feature) => feature.id);
 
   const now = Math.floor(Date.now() / 1000);
 
@@ -178,6 +186,15 @@ export async function POST(
     );
 
     const license = insertRes.rows[0];
+
+    await client.query(
+      `
+        INSERT INTO license_features (license_id, feature_id)
+        SELECT $1, unnest($2::int[])
+        ON CONFLICT DO NOTHING
+      `,
+      [license.id, selectedFeatureIds],
+    );
 
     // claim stabil = identificator constant pentru aplicație
     // momentan folosim slug-ul proiectului

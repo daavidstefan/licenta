@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import DevRequestActions from "@/components/dev-requests-actions";
+import { redirect } from "next/navigation";
+import { canManageDevRequests } from "@/lib/roles";
 
 type DevRequestRow = {
   id: string;
@@ -62,28 +64,8 @@ export default async function DevRequestDetailsPage({
   const session = await getServerSession(authOptions);
   const userRole = (session?.user as any)?.role;
 
-  if (userRole !== "admin") {
-    return (
-      <div className="p-6">
-        <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6 flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-lg text-center">
-              Acces interzis
-            </CardTitle>
-          </CardHeader>
-
-          <Separator />
-
-          <CardContent className="flex-1 flex items-center justify-center">
-            <p>Nu ai acces la această pagină.</p>
-          </CardContent>
-
-          <CardFooter className="text-sm text-muted-foreground justify-center">
-            Pagina este disponibilă doar administratorilor.
-          </CardFooter>
-        </Card>
-      </div>
-    );
+  if (!canManageDevRequests(userRole)) {
+    redirect("/forbidden");
   }
 
   const { rows } = await pg.query<DevRequestRow>(
@@ -106,7 +88,6 @@ export default async function DevRequestDetailsPage({
   );
 
   const request = rows[0];
-  const isPending = request.status?.trim().toLowerCase() === "pending";
 
   if (!request) {
     return (
@@ -131,6 +112,8 @@ export default async function DevRequestDetailsPage({
       </div>
     );
   }
+
+  const isPending = request.status?.trim().toLowerCase() === "pending";
 
   return (
     <div className="p-6">

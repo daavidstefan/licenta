@@ -10,10 +10,11 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useSession } from "next-auth/react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
@@ -24,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
+import { canCreateProjects } from "@/lib/roles";
 
 interface Feature {
   key: string;
@@ -38,6 +40,20 @@ export default function AddNewProject() {
   const [featInput, setFeatInput] = useState("");
   const [loading, setLoading] = useState(false);
   const featRef = useRef<HTMLTextAreaElement>(null);
+
+  const { data: session, status } = useSession();
+  const userRole = session?.user?.role;
+  const canAccessPage = canCreateProjects(userRole);
+
+  useEffect(() => {
+    if (status !== "loading" && !canAccessPage) {
+      router.replace("/forbidden");
+    }
+  }, [canAccessPage, router, status]);
+
+  if (status === "loading" || !canAccessPage) {
+    return null;
+  }
 
   const addFeature = () => {
     const label = featInput.trim();
