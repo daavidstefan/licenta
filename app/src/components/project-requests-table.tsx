@@ -140,8 +140,8 @@ export default function ProjectRequestsTable({
   };
 
   return (
-    <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-hidden p-6 flex flex-col">
+    <div className="app-page">
+      <Card className="app-panel overflow-hidden flex flex-col">
         <CardHeader>
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <CardTitle className="text-lg">

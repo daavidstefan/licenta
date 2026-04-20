@@ -170,8 +170,8 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3 p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] flex flex-col">
+    <div className="app-page">
+      <Card className="app-panel flex flex-col">
         <CardHeader className="px-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col shrink-0">
@@ -181,7 +181,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
               {canCreateProject && (
                 <Link
                   href="/addnewproject"
-                  className="underline text-black text-sm"
+                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
                 >
                   Adaugă un proiect nou
                 </Link>

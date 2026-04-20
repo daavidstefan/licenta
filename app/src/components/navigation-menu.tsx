@@ -220,7 +220,7 @@ function NavigationBarContent() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-card/85 shadow-[0_1px_0_rgb(255_255_255_/_0.65)] backdrop-blur-xl">
       <div className="flex h-14 w-full items-center px-4">
         <Sheet open={open} onOpenChange={setOpen}>
           <TooltipProvider>
@@ -228,7 +228,7 @@ function NavigationBarContent() {
               <TooltipTrigger asChild>
                 <SheetTrigger asChild>
                   <button
-                    className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                    className="cursor-pointer rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                     aria-label="Open menu"
                   >
                     <Menu className="size-5" />
@@ -246,9 +246,9 @@ function NavigationBarContent() {
             onCloseAutoFocus={(e) => e.preventDefault()}
             className="
           p-0 w-72
-          bg-gray-100 dark:bg-gray-600
-          border shadow-lg
-          rounded-tr-3xl rounded-br-3xl
+          bg-card/95
+          border-r border-border/70 shadow-lg
+          rounded-tr-lg rounded-br-lg
           flex flex-col
         "
             style={{
@@ -263,7 +263,7 @@ function NavigationBarContent() {
             <nav className="px-2 pb-4 space-y-1">
               {canCreateProject && (
                 <Link
-                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                   href="/myprojects"
                   onClick={() => setOpen(false)}
                 >
@@ -272,7 +272,7 @@ function NavigationBarContent() {
                 </Link>
               )}
               <Link
-                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                 href="/mylicenses"
                 onClick={() => {
                   //toast.error("Zonă în construcție...");
@@ -283,7 +283,7 @@ function NavigationBarContent() {
                 Licențele mele
               </Link>
               <Link
-                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                 href="/accountdetails"
                 onClick={() => {
                   //toast.error("Zonă în construcție...");
@@ -297,7 +297,7 @@ function NavigationBarContent() {
                 <AlertDialogTrigger asChild>
                   <button
                     type="button"
-                    className="w-full text-left flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent text-red-600 cursor-pointer"
+                    className="w-full text-left flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 cursor-pointer"
                   >
                     <CircleX className="size-5" />
                     Șterge contul
@@ -331,7 +331,7 @@ function NavigationBarContent() {
               </AlertDialog>
 
               <Link
-                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                 href="/contactdetails"
                 onClick={() => {
                   setOpen(false);
@@ -343,7 +343,7 @@ function NavigationBarContent() {
             </nav>
 
             {open && (
-              <div className="mt-auto border-t px-4 py-3 text-sm flex items-center justify-between">
+              <div className="mt-auto border-t border-border/70 px-4 py-3 text-sm flex items-center justify-between">
                 <span className="text-muted-foreground">Durată sesiune:</span>
                 <ConnectedSince active={open} />
               </div>
@@ -412,10 +412,15 @@ function NavigationBarContent() {
 
         <div className="ml-auto flex items-center gap-2">
           {status === "authenticated" && username && (
-            <span className="px-1 py-2">{username}</span>
+            <span className="rounded-md bg-secondary/80 px-2 py-1 text-sm font-medium">
+              {username}
+            </span>
           )}
-          <h1 className="py-2">|</h1>
-          <h1 className="px-1 py-2">{userRole}</h1>
+          {status === "authenticated" && userRole && (
+            <span className="rounded-md border border-border/70 bg-card/70 px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
+              {userRole}
+            </span>
+          )}
           {status === "authenticated" && (
             <NavbarButton variant="destructive" onClick={handleLogout}>
               Deconectare

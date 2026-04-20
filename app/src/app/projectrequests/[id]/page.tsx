@@ -86,8 +86,8 @@ export default async function ProjectRequestDetailsPage({
 
   if (!project) {
     return (
-      <div className="p-6">
-        <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6 flex flex-col">
+      <div className="app-page">
+        <Card className="app-panel overflow-y-auto flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg text-center">
               Cerere inexistenta
@@ -121,8 +121,8 @@ export default async function ProjectRequestDetailsPage({
   const isPending = project.status.trim().toLowerCase() === "pending";
 
   return (
-    <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6 flex flex-col">
+    <div className="app-page">
+      <Card className="app-panel overflow-y-auto flex flex-col">
         <CardHeader>
           <div className="flex flex-col items-center justify-center gap-2 text-center">
             <CardTitle className="text-lg">Cerere listare proiect</CardTitle>

@@ -273,7 +273,7 @@ export default function ProjectDetails({
   };
 
   return (
-    <div className="grid gap-6 p-6 h-[93vh] lg:grid-cols-[40%_58.4%] items-stretch">
+    <div className="app-page grid h-[calc(100vh-3.5rem)] gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-stretch">
       <Card className="flex-[1] min-h-0 overflow-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden">
         <CardHeader>
           <div className="relative flex items-center justify-center py-2">
@@ -292,8 +292,8 @@ export default function ProjectDetails({
                 <div
                   className={`text-sm mt-1 ${
                     draftName.trim().length < 10
-                      ? "text-red-500"
-                      : "text-green-600"
+                      ? "text-destructive"
+                      : "text-emerald-600"
                   } text-center`}
                 >
                   {draftName.trim().length}/10 caractere
@@ -304,7 +304,7 @@ export default function ProjectDetails({
             {!isEditing && canEdit && (
               <div className="ml-auto flex items-center gap-2">
                 <button
-                  className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                  className="cursor-pointer rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                   aria-label="Editează"
                   onClick={startEdit}
                 >
@@ -314,7 +314,7 @@ export default function ProjectDetails({
                 <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                   <AlertDialogTrigger asChild>
                     <button
-                      className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                      className="cursor-pointer rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                       aria-label="Șterge proiect"
                       onClick={deleteProject}
                       disabled={deleting}
@@ -371,8 +371,8 @@ export default function ProjectDetails({
               <div
                 className={`text-sm mt-1 ${
                   draftDetails.trim().length < 50
-                    ? "text-red-500"
-                    : "text-green-600"
+                    ? "text-destructive"
+                    : "text-emerald-600"
                 }`}
               >
                 {draftDetails.trim().length}/50 caractere
@@ -426,7 +426,7 @@ export default function ProjectDetails({
                 >
                   <AlertDialogTrigger asChild>
                     <button
-                      className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                      className="cursor-pointer rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                       aria-label="Adaugă serviciu"
                     >
                       <CirclePlus className="size-5" />
@@ -456,7 +456,7 @@ export default function ProjectDetails({
                         Renunță
                       </AlertDialogCancel>
                       <AlertDialogAction
-                        className="cursor-pointer bg-green-600"
+                        className="cursor-pointer"
                         onClick={submitAddFeature}
                         disabled={adding || !addFeatLabel.trim()}
                       >
@@ -470,8 +470,8 @@ export default function ProjectDetails({
           </CardHeader>
 
           <CardContent className="p-4">
-            <div className="mx-auto w-[100%] rounded-md border">
-              <div className="overflow-auto">
+            <div className="mx-auto w-full rounded-lg border border-border/70 bg-card/50">
+              <div className="overflow-auto scrollbar-none">
                 <Table
                   className="
                     w-full table-fixed
@@ -487,7 +487,7 @@ export default function ProjectDetails({
                     <col className="w-[100px]" />
                   </colgroup>
 
-                  <TableHeader className="sticky top-0 bg-background">
+                  <TableHeader className="sticky top-0 bg-muted/80">
                     <TableRow>
                       <TableHead>Denumire</TableHead>
                       <TableHead className="w-[100px]">Alege</TableHead>
@@ -560,7 +560,7 @@ export default function ProjectDetails({
                 Servicii alese:
               </div>
 
-              <div className="rounded-md border p-3 min-h-16">
+              <div className="rounded-lg border border-border/70 bg-card/50 p-3 min-h-16">
                 {selectedFeatures.length === 0 ? (
                   <div className="text-sm text-muted-foreground">
                     - niciunul -

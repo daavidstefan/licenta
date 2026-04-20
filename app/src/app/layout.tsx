@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <Providers>
           <NavigationBar />
-          <main>{children}</main>
+          <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
           <Toaster position="top-center" richColors duration={3000} />
         </Providers>
       </body>
